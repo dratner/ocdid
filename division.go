@@ -1,6 +1,7 @@
 package ocdid
 
 import (
+	"log"
 	"strings"
 )
 
@@ -30,33 +31,15 @@ func (d *DivisionId) countryToString() string {
 	return "us"
 }
 
-func (d *DivisionId) StateString() string {
+func (d *DivisionId) ToStrings() map[string]string {
+
+	ids := make(map[string]string, 0)
 
 	country := d.countryToString()
 
 	s := "ocd-division/country:" + country
 
-	stateClause := getStateClause(d.State)
-
-	if stateClause == "" {
-		return ""
-	}
-
-	s += "/" + stateClause
-
-	return s
-
-}
-
-func (d *DivisionId) ToStrings() []string {
-
-	ids := make([]string, 0)
-
-	country := d.countryToString()
-
-	s := "ocd-division/country:" + country
-
-	ids = append(ids, s)
+	ids["country"] = s
 
 	stateClause := getStateClause(d.State)
 
@@ -66,38 +49,95 @@ func (d *DivisionId) ToStrings() []string {
 
 	s += "/" + stateClause
 
-	ids = append(ids, s)
+	ids["state"] = s
 
 	if d.County != "" {
-		county := s + "/county:" + strings.Replace(strings.ToLower(d.County), " ", "_", -1)
-		ids = append(ids, county)
+		ids["county"] = s + "/county:" + strings.Replace(strings.ToLower(d.County), " ", "_", -1)
 	}
 
 	if d.City != "" {
-		place := s + "/place:" + strings.Replace(strings.ToLower(d.City), " ", "_", -1)
-		ids = append(ids, place)
+		ids["place"] = s + "/place:" + strings.Replace(strings.ToLower(d.City), " ", "_", -1)
 	}
 
 	if d.CongressionalDistrict != "" {
-		cong := s + "/cd:" + d.CongressionalDistrict
-		ids = append(ids, cong)
+		ids["cd"] = s + "/cd:" + d.CongressionalDistrict
 	}
 
 	if d.StateHouseDistrict != "" {
-		shd := s + "/sldl:" + d.StateHouseDistrict
-		ids = append(ids, shd)
+		ids["sldl"] = s + "/sldl:" + d.StateHouseDistrict
 	}
 
 	if d.StateSenateDistrict != "" {
-		sld := s + "/sldu:" + d.StateSenateDistrict
-		ids = append(ids, sld)
+		ids["sldu"] = s + "/sldu:" + d.StateSenateDistrict
 	}
 
 	return ids
 }
 
-func (d *DivisionId) FromString() error {
+func (d *DivisionId) FromString(id string) error {
+
+	parts := strings.Split(id, "/")
+	log.Printf("%+v", parts)
+
+	var ci int
+	var key, val string
+
+	for _, part := range parts {
+		ci = strings.Index(part, ":")
+		if ci > 0 {
+			key, val = part[:ci], part[ci+1:]
+			switch key {
+			case "district":
+				d.State = val
+				break
+			case "territory":
+				d.State = val
+				break
+			case "state":
+				d.State = val
+				break
+			case "country":
+				d.Country = val
+				break
+			case "county":
+				d.County = val
+				break
+			case "cd":
+				d.CongressionalDistrict = val
+				break
+			case "sldl":
+				d.StateHouseDistrict = val
+				break
+			case "sldu":
+				d.StateSenateDistrict = val
+				break
+			}
+			log.Printf("K: %s V: %s", key, val)
+		}
+	}
 	return nil
+}
+
+func (d *DivisionId) ToDescription() string {
+	var desc string
+
+	if d.Country != "" {
+		desc = d.Country
+	} else {
+		desc = "us"
+	}
+
+	if d.State != "" {
+		desc = getStateName(d.State) + ", " + desc
+	}
+
+	if d.City != "" {
+		desc = d.City + ", " + desc
+	} else if d.County != "" {
+		desc = d.County + " county, " + desc
+	}
+
+	return desc
 }
 
 /*
@@ -118,73 +158,4 @@ func (d *DivisionId) FromString() error {
 	Zip5                  string `json:"vb.vf_reg_cass_zip"`
 	Zip4                  string `json:"vb.reg_cass_zip4"`
 	MunicipalDistrict     string `json:"vb.vf_municipal_district"`
-*/
-
-/*
-
-func (o *OCDId) Init() {
-	if o.OCDType == "" {
-		o.OCDType = "division"
-	}
-
-	if o.Country == "" {
-		o.Country = "us"
-	}
-}
-
-func (o *OCDId) FromString(s string) error {
-
-	_ = strings.ToLower(s)
-
-	return nil
-}
-
-func (o *OCDId) compose() string {
-
-	s := fmt.Sprintf("ocd-%s/country:%s", o.OCDType, o.Country)
-
-	o.State = strings.ToLower(o.State)
-
-	if o.State == "dc" {
-		s += "/district:dc"
-	} else {
-		s += "/state:" + o.State
-	}
-
-	if o.CongressionalDistrict != "" {
-		s += "/cd:" + o.CongressionalDistrict
-		return s
-	}
-
-	if o.StateSenateDistrict != "" {
-		s += "/shdl:" + o.StateSenateDistrict
-		return s
-	}
-	if o.StateHouseDistrict != "" {
-		s += "/sldl:" + o.StateHouseDistrict
-		return s
-	}
-
-	if o.County != "" {
-		s += "/county:" + o.County
-	} else if o.City != "" {
-		s += "/place:" + o.City
-	}
-
-	return s
-}
-
-func (o *OCDId) ToString() string {
-
-	var s string
-
-	o.Init()
-	s = o.compose()
-
-	s = strings.Replace(strings.ToLower(o.compose()), " ", "_", -1)
-
-	return s
-}
-
-}
 */

@@ -15,13 +15,14 @@ func TestDivision(t *testing.T) {
 	d.StateSenateDistrict = "2"
 	d.StateHouseDistrict = "3"
 
-	state := d.StateString()
+	results := d.ToStrings()
 
-	log.Printf("State: %s", state)
+	log.Printf("Results: %+v", results)
 
-	ids := d.ToStrings()
+	d = new(DivisionId)
+	d.FromString("ocd-division/country:us/district:dc/school_district:youth_build_pcs_layc")
+	log.Printf("OCDID: %+v", d)
 
-	for _, ocdid := range ids {
-		log.Printf("Id: %s", ocdid)
-	}
+	desc := d.ToDescription()
+	log.Printf("Description: %s", desc)
 }
