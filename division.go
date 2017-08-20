@@ -1,7 +1,6 @@
 package ocdid
 
 import (
-	"log"
 	"strings"
 )
 
@@ -77,7 +76,6 @@ func (d *DivisionId) ToStrings() map[string]string {
 func (d *DivisionId) FromString(id string) error {
 
 	parts := strings.Split(id, "/")
-	log.Printf("%+v", parts)
 
 	var ci int
 	var key, val string
@@ -112,7 +110,6 @@ func (d *DivisionId) FromString(id string) error {
 				d.StateSenateDistrict = val
 				break
 			}
-			log.Printf("K: %s V: %s", key, val)
 		}
 	}
 	return nil
