@@ -11,7 +11,7 @@ func getStateClause(state string) string {
 	}
 
 	if len(state) > 2 {
-		state = getStateAbbrev(state)
+		state = GetStateAbbrev(state)
 	}
 
 	if len(state) == 2 {
@@ -23,7 +23,7 @@ func getStateClause(state string) string {
 	return ""
 }
 
-func getStateAbbrev(name string) string {
+func GetStateAbbrev(name string) string {
 	sm := getStateMap()
 	name = strings.Title(name)
 	return sm[name]

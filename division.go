@@ -60,14 +60,17 @@ func (d *DivisionId) ToStrings() map[string]string {
 
 	if d.CongressionalDistrict != "" {
 		ids["cd"] = s + "/cd:" + d.CongressionalDistrict
+		ids["exact"] = ids["cd"]
 	}
 
 	if d.StateHouseDistrict != "" {
 		ids["sldl"] = s + "/sldl:" + d.StateHouseDistrict
+		ids["exact"] = ids["sldl"]
 	}
 
 	if d.StateSenateDistrict != "" {
 		ids["sldu"] = s + "/sldu:" + d.StateSenateDistrict
+		ids["exact"] = ids["sldu"]
 	}
 
 	return ids
